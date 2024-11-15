@@ -49,6 +49,7 @@ from io import BytesIO
 import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
+from tensorflow.keras.metrics import MeanSquaredError  # Import the custom metric
 from IPython.display import Markdown, display
 
 im_width = 75
@@ -102,7 +103,18 @@ def display_single_digit_with_predicted_bboxes(validation_digit, predicted_bboxe
     ax.axis('off')
     plt.show()
 
+def upload_file(prompt=""):
+    """Handles file upload and returns the file path."""
+    display(Markdown(prompt))
+    uploaded = files.upload()  # Trigger the file upload dialog
+    for filename in uploaded.keys():
+        file_path = f"/content/{filename}"
+        with open(file_path, "wb") as f:
+            f.write(uploaded[filename])
+    return file_path
+
 def upload_image():
+    """Handles image upload and returns the image as a numpy array."""
     uploaded = files.upload()  # Trigger the file upload dialog
     for filename in uploaded.keys():
         img = Image.open(BytesIO(uploaded[filename])).convert('L')
@@ -110,26 +122,17 @@ def upload_image():
         img_array = np.array(img) / 255.0
         return img_array
 
-def upload_model():
-    uploaded = files.upload()  # Trigger the file upload dialog for the model
-    for filename in uploaded.keys():
-        model_file_path = f"/content/{filename}"
-        with open(model_file_path, "wb") as f:
-            f.write(uploaded[filename])
-    return model_file_path
+# Define custom objects for model loading (e.g., 'mse' metric)
+custom_objects = {
+    'mse': MeanSquaredError()  # Add any custom objects or metrics here
+}
 
-# Upload the model manually
-display(Markdown("# UPLOAD MODEL : "))
-model_file_path = upload_model()
-display(Markdown("---"))
+# Upload and load the model
+model_path = upload_file(prompt="UPLOAD MODEL: ")
+model = load_model(model_path, custom_objects=custom_objects, compile=False)
 
-# Load the trained model from the local file
-model = load_model(model_file_path)
-
-# Example usage (make sure to replace with actual data):
-display(Markdown("# UPLOAD Image : "))
+# Upload and process image
 validation_digit = upload_image()
-display(Markdown("---"))
 
 # Reshape the image to match the expected input shape (1, 75, 75, 1)
 validation_digit = validation_digit.reshape(1, 75, 75, 1)
