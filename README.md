@@ -17,7 +17,7 @@ We'll use the **MNIST dataset** to create a custom dataset where each digit is p
 ### Visualizing Results
 The project includes utilities to visualize bounding boxes and check model performance visually.
 
-![]("https://github.com/ParitKansal/photos/blob/main/download%20(1).png")
+![](https://github.com/ParitKansal/photos/blob/main/download%20(1).png)
 
 !![fcfeccrcrrvrc]("https://github.com/ParitKansal/photos/blob/main/download%20(2).png")
 
